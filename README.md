@@ -80,7 +80,7 @@ module.exports = function(robot){
 ````
 
 ## Implementation
-The library is implemented as pure javascript, instead of CofeeScript, including OOP with prototypes. It's quite ugly, 
+The library is implemented as pure javascript, instead of CoffeeScript, including OOP with prototypes. It's quite ugly, 
 so I guess i will implement the OOP with an easier to the eye OOP library.
 
 I'm using bluebird for promise handling.
