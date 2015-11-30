@@ -19,5 +19,6 @@
     "command"
   ],
   "author": "Loïc Prieto <loic.sephiroth@gmail.com>",
-  "license": "LGPL-3.0"
+  "license": "LGPL-3.0",
+  "homepage": "https://github.com/loic-prieto/hubot-command"
 }
