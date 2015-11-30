@@ -4,7 +4,7 @@
   "description": "A library to produce parseable commands for hubot",
   "main": "index.js",
   "scripts": {
-    "test": "test.js"
+    "test": "mocha test.js"
   },
   "dependencies":{
     "bluebird":"3.0.5"
