@@ -21,42 +21,46 @@ have a sample:
 
 _TestCommand.js_
 ````javascript
-function TestCommand() {
-  Command.call(this, 'test');
-  this.addParameter(new FromParameter(this));
-  this.addParameter(new ToParameter(this));
-}
-TestCommand.prototype = Object.create(Command.prototype);
+class TestCommand extends Command {
+    constructor() {
+        super('test');
+        this.addParameter(new FromParameter(this));
+        this.addParameter(new ToParameter(this));
+    }
 
-TestCommand.prototype.execute = function (commandString) {
-  //For the sake of the test, I'm not verifying if the command was already parsed before
-  this.clearModel();
-  return this.parse(commandString)
-    .bind(this)
-    .then(function() {
-      this.model.executed=true;
-      return this.model;
-    });
-};
-TestCommand.prototype.validate = function(){
-  //Validates that the from date is before the to date
-  return this.model.from.getTime() < this.model.to.getTime();
-};
+    execute(commandString) {
+        //For the sake of the test, I'm not verifying if the command was already parsed before
+        this.model = {};
+        return this.parse(commandString)
+            .bind(this)
+            .then(function () {
+                this.model.executed = true;
+                return this.model;
+            });
+    }
+
+    validate(){
+        //Validates that the from date is before the to date
+        return this.model.from.getTime() < this.model.to.getTime();
+    }
+
+}
 ````
 
 _FromParameter.js_
 ````javascript
-function FromParameter(command){
-  Parameter.call(this,'from',command);
-}
-FromParameter.prototype = Object.create(Parameter.prototype);
+class FromParameter extends Parameter {
+    constructor(command){
+        super('from',command);
+    }
 
-FromParameter.prototype.parse = function(dateVal){
-  if(typeof dateVal === 'undefined' || dateVal === '') {
-    throw new ParseError('the "from" parameter cannot be empty');
-  }
+    parse(date){
+        if(typeof date === 'undefined' || date === '') {
+            throw new ParseError('the "from" parameter cannot be empty');
+        }
 
-  this.command.getModel().from = new Date(dateVal);
+        this.command.model.from = new Date(date);
+    }
 }
 ````
 
