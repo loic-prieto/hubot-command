@@ -1,4 +1,5 @@
-//Exceptions
+"use strict";
+
 /**
  * A parse error is thrown when a function discovers that
  * the text passed to it is wrongly written for parsing.
@@ -6,7 +7,13 @@
  * @param {string} cause - A descriptive cause
  * @constructor
  */
-exports.ParseError = ParseError;
+class ParseError extends Error {
+    constructor(cause){
+        super();
+        this.message = cause;
+        this.name = 'ParseError';
+    }
+}
 
 /**
  * A validation error is thrown when a method tries
@@ -15,22 +22,14 @@ exports.ParseError = ParseError;
  * @param {string} cause - A descriptive cause
  * @constructor
  */
+class ValidationError extends Error {
+    constructor(cause){
+        super();
+        this.message = cause;
+        this.name = 'ValidationError';
+    }
+}
+
+
+exports.ParseError = ParseError;
 exports.ValidationError = ValidationError;
-
-
-//Implementation
-function ParseError(cause){
-  Error.call(this);
-  Error.captureStackTrace(this, arguments.callee);
-  this.message = cause;
-  this.name = 'ParseError';
-}
-ParseError.prototype = Object.create(Error.prototype);
-
-function ValidationError(cause){
-  Error.call(this);
-  Error.captureStackTrace(this, arguments.callee);
-  this.message = cause;
-  this.name = 'ValidationError';
-}
-ValidationError.prototype = Object.create(Error.prototype);

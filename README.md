@@ -80,9 +80,9 @@ module.exports = function(robot){
 ````
 
 ## Implementation
-The library is implemented as pure javascript, instead of CoffeeScript, including OOP with prototypes. It's quite ugly, 
-so I guess i will implement the OOP with an easier to the eye OOP library.
+The library is implemented as pure javascript, instead of CoffeeScript. Ecmascript 6 classes are used for OOP syntactic sugar, so
+a compatible nodejs runtime is needed.
 
-I'm using bluebird for promise handling.
+Bluebird is used for promise handling.
 
-Tests are executed with mocha and asserts are using chai assert style, with a sprinkle of chai-as-promised.
+Tests are executed with mocha and asserts are using chai assert style, with a sprinkle of chai-as-promised. All integrated with npm, of course.
