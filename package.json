@@ -1,24 +1,28 @@
 {
-  "name": "hubot-commands",
-  "version": "0.2.0",
-  "description": "A library to produce parseable commands for hubot",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha test.js"
-  },
-  "dependencies":{
-    "bluebird":"3.0.5"
-  },
-  "devDependencies":{
-    "mocha":"2.3.4",
-    "chai":"3.4.1",
-    "chai-as-promised":"5.1.0"
-  },
-  "keywords": [
-    "hubot",
-    "command"
-  ],
-  "author": "Loïc Prieto <loic.sephiroth@gmail.com>",
-  "license": "LGPL-3.0",
-  "homepage": "https://github.com/loic-prieto/hubot-command"
+	"name": "hubot-commands",
+	"version": "0.2.0",
+	"description": "A library to produce parseable commands for hubot",
+	"main": "index.js",
+	"scripts": {
+		"test": "mocha test.js"
+	},
+	"dependencies":{
+		"bluebird":"3.0.5"
+	},
+	"devDependencies":{
+		"mocha":"2.3.4",
+		"chai":"3.4.1",
+		"chai-as-promised":"5.1.0"
+	},
+	"keywords": [
+		"hubot",
+	"command"
+		],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/loic-prieto/hubot-command"
+	},
+	"author": "Loïc Prieto <loic.sephiroth@gmail.com>",
+	"license": "LGPL-3.0",
+	"homepage": "https://github.com/loic-prieto/hubot-command"
 }
