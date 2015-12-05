@@ -111,14 +111,14 @@ class Command {
                     // with the current parameterValueBuffer and start recollecting the value
                     // for the next one.
                     if (previousParameter != null) {
-                        previousParameter.parse(parameterValueBuffer);
+                        previousParameter.parse(parameterValueBuffer.trim());
                     }
                     previousParameter = potentialParameter;
                     parameterValueBuffer = "";
                 } else {
                     //If this word isn't a new parameter, then we add the current word to
                     //the value buffer that will be passed to the current parameter
-                    parameterValueBuffer += currentWord;
+                    parameterValueBuffer += currentWord+" ";
                 }
             }
             // Upon reaching the end of the parameter parsing, we can be in one of the following states:
@@ -127,7 +127,7 @@ class Command {
             // - The parameterValueBuffer is empty and the previousParameter has a value, which means that
             // the last parameter has no value and must be parsed.
             if ((parameterValueBuffer !== "") || (previousParameter !== null)) {
-                previousParameter.parse(parameterValueBuffer);
+                previousParameter.parse(parameterValueBuffer.trim());
             }
 
             // Unless there has been an exception thrown while parsing the parameters, the model of the command
