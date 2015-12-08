@@ -14,19 +14,21 @@
  * perform any action by itself. Just parse the command and put any relevant information
  * in the command's model,which may be accessed with this.command.model .
  *
- * The attributes helpHeader and helpDetail are strings that will be used by the help
+ * The attributes help.header and help.detail are strings that will be used by the help
  * action of the command, which is invoked by writing "<commandName> help <parameterName>"
  * or "<commandName> help".
- * The helpHeader attribute is used when listing the general command info, a brief description
- * of the parameter. The helpDetail is used when providing help for a specific parameter.
+ * The help.header attribute is used when listing the general command info, a brief description
+ * of the parameter. The help.detail is used when providing help for a specific parameter.
  *
  */
 class Parameter {
     constructor(parameterName,command){
         this.name = parameterName;
         this.command = command;
-        this.helpHeader = this.name;
-        this.helpDetail = "";
+        this.help = {
+            header: this.name,
+            detail: ""
+        };
     }
 
     /**

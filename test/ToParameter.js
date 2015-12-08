@@ -10,8 +10,8 @@ var ParseError = require('../exceptions').ParseError;
 class ToParameter extends Parameter {
     constructor(command){
         super('to',command);
-        this.helpHeader = "when to stop";
-        this.helpDetail = "When to stop the command. ISO8601 date format expected.";
+        this.help.header = "when to stop";
+        this.help.detail = "When to stop the command. ISO8601 date format expected.";
     }
 
     /**

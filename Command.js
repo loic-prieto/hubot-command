@@ -45,8 +45,8 @@ var Promise = require('bluebird');
  *     class FromParameter extends Parameter {
  *         constructor(command){
  *             super('from',command);
- *             this.helpHeader = 'to define when to start';
- *             this.helpDetail = '
+ *             this.help.header = 'to define when to start';
+ *             this.help.detail = '
  *         }
  *         parse(parameterValue){
  *             if(typeof parameterValue === "undefined" || parameterValue !== '') {
@@ -58,10 +58,10 @@ var Promise = require('bluebird');
  *
  * A command also has help by default, both for the command itself, and for it's parameters.
  * When the user types "<commandName> help", then the help action of the command is executed,
- * which uses the help attribute of the command and of it's parameters helpHeader to display
- * general information. The helpHeader attribute may be overriden by the parameter's subclass.
+ * which uses the help attribute of the command and of it's parameters help.header to display
+ * general information. The helpHeader attribute may be overridden by the parameter's subclass.
  * If the user types instead "<commandName> help <parameterName>", the help action returns the
- * text provided by the parameter's helpDetail attribute, which may also be overridden by
+ * text provided by the parameter's help.detail attribute, which may also be overridden by
  * subclasses to provide a detailed help.
  *
  */
@@ -226,7 +226,7 @@ class Command {
                 if(parameter === null) {
                     throw new ParseError("The given parameter ("+parameterName+") does not exist for this command.");
                 } else {
-                    result += parameter.name + ":\n\t" + parameter.helpDetail;
+                    result += parameter.name + ":\n\t" + parameter.help.detail;
                 }
             } else {
                 //Just get the commands general help and then add each parameter name
@@ -234,7 +234,7 @@ class Command {
                 result += "\n\nParameters:\n"
                 for(let key in self.parameters){
                     let parameter = self.parameters[key];
-                    result += "\t- "+parameter.name+": "+parameter.helpHeader+"\n";
+                    result += "\t- "+parameter.name+": "+parameter.help.header+"\n";
                 }
             }
 
