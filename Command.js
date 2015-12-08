@@ -36,7 +36,7 @@ var Promise = require('bluebird');
  *             this.help = "A test command to prove the system works";
  *         }
  *         run(){
- *             return new Promise(function(resolve){
+ *             return new Promise(function(resolve){ //No need tp return a promise, it can be anything.
  *                 return "completed successfully with from parameter equal to: "+this.from;
  *             }).bind(this.model);
  *         }

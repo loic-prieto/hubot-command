@@ -26,17 +26,13 @@ class TestCommand extends Command {
         super('test');
         this.addParameter(new FromParameter(this));
         this.addParameter(new ToParameter(this));
+        this.help = "A test command to prove that the library works";
     }
 
-    execute(commandString) {
-        //For the sake of the test, I'm not verifying if the command was already parsed before
-        this.model = {};
-        return this.parse(commandString)
-            .bind(this)
-            .then(function () {
-                this.model.executed = true;
-                return this.model;
-            });
+    //Will be invoked by the execute command that the client uses, it's "private" to the class.
+    run(){
+        this.model.executed = true;
+        return this.model; //I could also return a [bluebird] promise, not only objects.
     }
 
     validate(){
@@ -52,6 +48,8 @@ _FromParameter.js_
 class FromParameter extends Parameter {
     constructor(command){
         super('from',command);
+        this.help.header = "when to start";
+        this.help.detail = "From when to start the command. ISO8601 date format expected.";
     }
 
     parse(date){
