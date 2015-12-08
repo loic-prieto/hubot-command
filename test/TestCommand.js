@@ -8,23 +8,19 @@ var ToParameter = require('./ToParameter');
  * A test command to be used in the test suite of
  * the Allen Commands library.
  * @constructor
+ * @type {TestCommand}
  */
 class TestCommand extends Command {
     constructor() {
         super('test');
         this.addParameter(new FromParameter(this));
         this.addParameter(new ToParameter(this));
+        this.help = "A test command to prove that the library works";
     }
 
-    execute(commandString) {
-        //For the sake of the test, I'm not verifying if the command was already parsed before
-        this.model = {};
-        return this.parse(commandString)
-            .bind(this)
-            .then(function () {
-                this.model.executed = true;
-                return this.model;
-            });
+    run(){
+        this.model.executed = true;
+        return this.model;
     }
 
     validate(){

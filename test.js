@@ -12,6 +12,7 @@ describe('Allen command library', function () {
 
         var TEST_COMMAND_INPUT_STRING = 'test from 2015-12-01T09:00 to 2015-12-01T10:30';
 
+        //Creation
         it('should create a subclassed command correctly', function () {
             var testCommand = new TestCommand();
 
@@ -25,29 +26,31 @@ describe('Allen command library', function () {
             assert.isObject(testCommand.getParameter('to'), 'The test command should have a to parameter');
         });
 
-        it('should parse correctly a valid test command', function () {
-            var testCommand = new TestCommand();
-            return assert.isFulfilled(testCommand.parse(TEST_COMMAND_INPUT_STRING), "the test parsing should be completed successfully");
-        });
-
+        //Execution
         it('should give correct model values for the test command when parsed successfully', function () {
             var testCommand = new TestCommand();
-            return assert.eventually.property(testCommand.parse(TEST_COMMAND_INPUT_STRING), 'from', 'from property should be set to 2015-12-01T09:00');
+            return assert.eventually.property(testCommand.execute(TEST_COMMAND_INPUT_STRING), 'executed', 'from property should be set to 2015-12-01T09:00');
         });
-
         it('should throw a ValidationError when the from parameter has a date value later than the to parameter date value', function () {
             var testCommand = new TestCommand();
-            return assert.isRejected(testCommand.parse('test from 2015-12-01T10:30 to 2015-12-01T09:00'), ValidationError, "The invalid test command should be rejected because of invalid dates");
+            return assert.isRejected(testCommand.execute('test from 2015-12-01T10:30 to 2015-12-01T09:00'), ValidationError, "The invalid test command should be rejected because of invalid dates");
         });
-
-        it('should execute correctly the command', function () {
-            var testCommand = new TestCommand();
-            return assert.eventually.property(testCommand.execute(TEST_COMMAND_INPUT_STRING), 'executed', 'The executed property of the model should have been set after execution');
-        });
-
         it('should throw ParseError when fed an invalid command', function () {
             var testCommand = new TestCommand();
-            return assert.isRejected(testCommand.parse('invalidCommand'), ParseError, "the invalid command parsing should be rejected");
+            return assert.isRejected(testCommand.execute('invalidCommand'), ParseError, "the invalid command parsing should be rejected");
+        });
+
+        //Help
+        it('should return a general command help when asked for',function(){
+            var testCommand = new TestCommand();
+            var helpResult = "A test command to prove that the library works\n\nParameters:\n";
+            helpResult += "\t- from: when to start\n";
+            helpResult += "\t- to: when to stop\n";
+            return assert.eventually.equal(testCommand.execute("test help"),helpResult,"the general help action should return a specific string");
+        });
+        it('should return a specific parameter help string when asked for',function(){
+            var testCommand = new TestCommand();
+            return assert.eventually.equal(testCommand.execute("test help from"),"from:\n\tFrom when to start the command. ISO8601 date format expected.","the specific parameter help action should return a specific string");
         });
     });
 

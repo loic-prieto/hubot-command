@@ -7,18 +7,15 @@ var Promise = require('bluebird');
 /**
  * Represents a command to be parsed by hubot.
  * The command has a name and has parameters.
- * This is the abstract class. A subclass must implement
- * the command methods, including defining it's parameters
- * and the optional validation method.
+ * This is the abstract class. A subclass must implement the command methods,
+ * including defining it's parameters and the optional validation method.
  *
- * Once subclassed, the intended use of a Command is by using
- * it's execute method, which takes a command string as written
- * by a client and performs validation and execution of the
- * actions it's programmed to do.
+ * Once subclassed, the intended use of a Command is by using it's execute method,
+ * which takes a command string as written by a client and performs validation
+ * and execution of the actions it's programmed to do.
  * example:
  *     testCommand.execute('test from 2015 to 2016');
- * The execute function must return a promise with the result of
- * the command.
+ * The execute function must return a promise with the result of the command.
  *     testCommand.execute('test from 2015 to 2016')
  *         .then(function(result){ //result may be any type of object
  *             chat.send('Your command was executed: '+result);
@@ -27,40 +24,45 @@ var Promise = require('bluebird');
  *             chat.send('Your command could not be executed: '+error.message);
  *         });
  *
- * If you just want to see if the command is valid without performing the actual
- * action, you can use the parse method.
- * example:
- *     testCommand.parse('test from 2015 to 2016')
- *         .then(function(model){
- *             // parse gives the modified model as a result for testing purposes
- *             chat.send('The given input was a valid command');
- *         })
- *         .catch(ParseError,ValidationError,function(error){
- *             chat.send('The given input could not be parsed: '+error.message);
- *         });
- *
  * This base class takes care of the parameter value delivery, so that the user can
  * "just" create the parameters, which will implement their parse operation upon
  * values received by the command, and use those created parameters in the Command
  * subclass constructor, like so:
- *     function TestCommand(){
- *         Command.call(this,'test');
- *         this.addParameter(new FromParameter());
- *         this.addParameter(new ToParameter());
- *     }
- *     TestCommand.prototype = Object.create(Command.prototype);
- * Where FromParameter is defined like so:
- *     function FromParameter(command){
- *         Parameter.call(this,'from',command);
- *     }
- *     FromParameter.prototype = Object.create(Parameter.prototype);
- *
- *     FromParameter.prototype.parse = function(parameterValueText){
- *         if(typeof parameterValueText === "undefined" || parameterValueText !== '') {
- *             throw new ParseError('the "from" parameter cannot be empty');
+ *     class TestCommand extends Command {
+ *         constructor(){
+ *             super('test');
+ *             this.addParameter(new FromParameter(this));
+ *             this.addParameter(new ToParameter(this));
+ *             this.help = "A test command to prove the system works";
  *         }
- *         this.getModel().from = new Date(parameterValueText);
+ *         run(){
+ *             return new Promise(function(resolve){
+ *                 return "completed successfully with from parameter equal to: "+this.from;
+ *             }).bind(this.model);
+ *         }
  *     }
+ * Where FromParameter is defined like so:
+ *     class FromParameter extends Parameter {
+ *         constructor(command){
+ *             super('from',command);
+ *             this.helpHeader = 'to define when to start';
+ *             this.helpDetail = '
+ *         }
+ *         parse(parameterValue){
+ *             if(typeof parameterValue === "undefined" || parameterValue !== '') {
+ *              throw new ParseError('the "from" parameter cannot be empty');
+ *             }
+ *             this.model.from = new Date(parameterValue);
+ *         }
+ *     }
+ *
+ * A command also has help by default, both for the command itself, and for it's parameters.
+ * When the user types "<commandName> help", then the help action of the command is executed,
+ * which uses the help attribute of the command and of it's parameters helpHeader to display
+ * general information. The helpHeader attribute may be overriden by the parameter's subclass.
+ * If the user types instead "<commandName> help <parameterName>", the help action returns the
+ * text provided by the parameter's helpDetail attribute, which may also be overridden by
+ * subclasses to provide a detailed help.
  *
  */
 class Command {
@@ -68,6 +70,7 @@ class Command {
         this.name = commandName;
         this.parameters = {};
         this.model = {};
+        this.help = commandName; //Stupid help default
     }
 
     /**
@@ -78,15 +81,15 @@ class Command {
      * Each subclass may override the default validate method (which returns always true).
      *
      * @param {string} commandString - the command string to parse.
+     * @private
      * @returns {promise} - A promise with no result.
      * @throws {ParseError} - When one of the parameters are not valid, or the command itself
      *                        cannot be parsed by this object.
      * @throws {ValidationError} - When the command doesn't pass the semantic validation.
      */
-    parse(commandString){
+    _parse(commandString){
         var self = this;
         return new Promise(function(resolve){
-
             //Quick command validation
             if(!self.willParseCommand(commandString)){
                 throw new ParseError('The given input ('+commandString+') cannot be parsed by the command '+self.name);
@@ -175,7 +178,7 @@ class Command {
      *
      * To be implemented by subclasses.
      *
-     * @param {string} commandString - Optional. If given, implies a a parse
+     * @param {string} inputCommand - Optional. If given, implies a a parse
      *        of the given commandString. If not, the method must either check
      *        for itself if the model has been modified by a previous parse
      *        or launch parse itself if needed.
@@ -184,8 +187,74 @@ class Command {
      *                      cannot be parsed by this object.
      * @throws {ValidationError} When the command doesn't pass the semantic validation.
      */
-    execute(commandString){
-        throw new Error("the execute method must be implemented by Command subclasses");
+    execute(inputCommand){
+        var result = null;
+        if(isHelpCommand(inputCommand)){
+            result = this._help(inputCommand);
+        } else {
+            //first parse the command
+            result = this._parse(inputCommand)
+                .bind(this)
+                .then(function(){
+                    return this.run();
+                })
+        }
+
+        return result;
+    }
+
+    /**
+     * Performs the help action. Looks if it has to provide help
+     * about one of the parameters or if it has to provide help
+     * about the command itself.
+     * For the command, the help action returns whatever the subcommand's help
+     * method provides plus a list of the parameters and their quick explanation.
+     * @param {string} - inputCommand
+     * @private
+     * @returns {promise} - a promise with a string result of the help to display.
+     */
+    _help(inputCommand){
+        var parameterName = inputCommand.replace(this.name,"")
+                .replace("help","")
+                .trim();
+        var parameterMode = parameterName !== "";
+        var self = this;
+        return new Promise(function(resolve){
+            let result = "";
+            if(parameterMode){
+                let parameter = self.getParameter(parameterName);
+                if(parameter === null) {
+                    throw new ParseError("The given parameter ("+parameterName+") does not exist for this command.");
+                } else {
+                    result += parameter.name + ":\n\t" + parameter.helpDetail;
+                }
+            } else {
+                //Just get the commands general help and then add each parameter name
+                result = self.help;
+                result += "\n\nParameters:\n"
+                for(let key in self.parameters){
+                    let parameter = self.parameters[key];
+                    result += "\t- "+parameter.name+": "+parameter.helpHeader+"\n";
+                }
+            }
+
+            resolve(result);
+        });
+    }
+
+    /**
+     * This is the method that must be implemented by Command subclasses. By the time
+     * it is invoked, the command will have been parsed and the model ready to use
+     * under the 'model' attribute of the instance.
+     * If the command was invoked with a help action, it won't get executed, and instead
+     * will just fetch the information from the command and it's parameters help.
+     *
+     * May return any type of object, including a promise (if it is a promise, it must be
+     * of the bluebird library for composability).
+     * @returns {object} - a promise of the result if any.
+     */
+    run(){
+        throw new Error("The run method must be implemented by the Command subclass");
     }
 
     /**
@@ -221,3 +290,14 @@ class Command {
 }
 
 module.exports = Command;
+
+/**
+ * Checks whether the command is of type help.
+ * A help command has the form <commandName> help [<parameterName>].
+ *
+ * @param inputCommand
+ * @returns {boolean} - true if it is
+ */
+function isHelpCommand(inputCommand){
+    return inputCommand.match(/help/);
+}

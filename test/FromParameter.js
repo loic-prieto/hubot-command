@@ -11,6 +11,8 @@ var ParseError = require('../exceptions').ParseError;
 class FromParameter extends Parameter {
     constructor(command){
         super('from',command);
+        this.helpHeader = "when to start";
+        this.helpDetail = "From when to start the command. ISO8601 date format expected.";
     }
 
     /**
