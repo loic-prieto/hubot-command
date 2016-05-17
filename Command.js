@@ -66,7 +66,7 @@ var Promise = require('bluebird');
  *
  */
 class Command {
-    constructor(commandName){
+	constructor(commandName){
         this.name = commandName;
         this.parameters = {};
         this.model = {};

@@ -52,6 +52,7 @@ describe('Allen command library', function () {
             var testCommand = new TestCommand();
             return assert.eventually.equal(testCommand.execute("test help from"),"from:\n\tFrom when to start the command. ISO8601 date format expected.","the specific parameter help action should return a specific string");
         });
+
     });
 
 });
