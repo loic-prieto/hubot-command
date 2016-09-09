@@ -36,7 +36,7 @@ var Promise = require('bluebird');
  *             this.help = "A test command to prove the system works";
  *         }
  *         run(){
- *             return new Promise(function(resolve){ //No need tp return a promise, it can be anything.
+ *             return new Promise(function(resolve){ //No need to return a promise, it can be anything.
  *                 return "completed successfully with from parameter equal to: "+this.from;
  *             }).bind(this.model);
  *         }
@@ -68,7 +68,11 @@ var Promise = require('bluebird');
 class Command {
 	constructor(commandName){
         this.name = commandName;
+		//Normal parameters
         this.parameters = {};
+		// cache of whole command input parameters that will receive the whole command input string
+		// instead of just a part of it.
+		this.wholeCommandParameters = []; 
         this.model = {};
         this.help = commandName; //Stupid help default
     }
@@ -89,16 +93,22 @@ class Command {
      */
     _parse(commandString){
         return new Promise((resolve)=>{
-            //Quick command validation
+            // Quick command validation
             if(!this.willParseCommand(commandString)){
                 throw new ParseError('The given input ('+commandString+') cannot be parsed by the command '+this.name);
             }
 
-            //We substract the name of the command, since were only interested
-            //in the parameters now.
+            // We substract the name of the command, since were only interested
+            // in the parameters now.
             commandString = commandString.substring(this.name.length+1);
 
-            // Decompose it by parameters.
+			// First give the whole command string to the complex parameters
+			for(let wholeCommandParameter of this.wholeCommandParameters){
+				wholeCommandParameter.parse(commandString);
+			}
+
+            // Then give the partial values to the rest of parameters.
+			// 
             // We know that each parameter will be separated by another
             // by the parameter names themselves.
             // Parameters names are one word only to simplify distinction
@@ -108,6 +118,9 @@ class Command {
             for (var i = 0; i < words.length; i++) {
                 var currentWord = words[i];
                 var potentialParameter = this.getParameter(currentWord);
+				if(potentialParameter != null && potentialParameter.wholeCommandString) {
+					potentialParameter = null; //We don't want to process whole command parameters
+				}
                 if (potentialParameter != null) {
                     // If we've found a new parameter, then we invoke the previous parameter
                     // with the current parameterValueBuffer and start recollecting the value
@@ -144,12 +157,16 @@ class Command {
         });
     }
 
-    /** * Adds a parameter to this command that will be part of
+    /** 
+	 * Adds a parameter to this command that will be part of
      * the parsing process.
      * @param {Parameter} parameter
      */
     addParameter(parameter){
-        this.parameters[parameter.name] = parameter;
+       	this.parameters[parameter.name] = parameter;
+		if(parameter.wholeCommandString){
+			this.wholeCommandParameters.push(parameter);
+		} 
     }
 
     /**

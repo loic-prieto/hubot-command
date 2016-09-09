@@ -24,12 +24,13 @@ describe('Allen command library', function () {
             //Parameters test
             assert.isObject(testCommand.getParameter('from'), 'The test command should have a from parameter');
             assert.isObject(testCommand.getParameter('to'), 'The test command should have a to parameter');
+            assert.isObject(testCommand.getParameter('complex'), 'The test command should have a complex parameter');
         });
 
         //Execution
         it('should give correct model values for the test command when parsed successfully', function () {
             var testCommand = new TestCommand();
-            return assert.eventually.property(testCommand.execute(TEST_COMMAND_INPUT_STRING), 'executed', 'from property should be set to 2015-12-01T09:00');
+            return assert.eventually.property(testCommand.execute(TEST_COMMAND_INPUT_STRING), 'executed', 'The executed attribute of the model should be set to true');
         });
         it('should throw a ValidationError when the from parameter has a date value later than the to parameter date value', function () {
             var testCommand = new TestCommand();
@@ -39,13 +40,14 @@ describe('Allen command library', function () {
             var testCommand = new TestCommand();
             return assert.isRejected(testCommand.execute('invalidCommand'), ParseError, "the invalid command parsing should be rejected");
         });
-
+		
         //Help
         it('should return a general command help when asked for',function(){
             var testCommand = new TestCommand();
             var helpResult = "A test command to prove that the library works\n\nParameters:\n";
             helpResult += "\t- from: when to start\n";
             helpResult += "\t- to: when to stop\n";
+            helpResult += "\t- complex: An arbitrary complex parameter that needs the whole command input string.\n";
             return assert.eventually.equal(testCommand.execute("test help"),helpResult,"the general help action should return a specific string");
         });
         it('should return a specific parameter help string when asked for',function(){
