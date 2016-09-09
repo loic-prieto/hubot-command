@@ -88,16 +88,15 @@ class Command {
      * @throws {ValidationError} - When the command doesn't pass the semantic validation.
      */
     _parse(commandString){
-        var self = this;
-        return new Promise(function(resolve){
+        return new Promise((resolve)=>{
             //Quick command validation
-            if(!self.willParseCommand(commandString)){
-                throw new ParseError('The given input ('+commandString+') cannot be parsed by the command '+self.name);
+            if(!this.willParseCommand(commandString)){
+                throw new ParseError('The given input ('+commandString+') cannot be parsed by the command '+this.name);
             }
 
             //We substract the name of the command, since were only interested
             //in the parameters now.
-            commandString = commandString.substring(self.name.length+1);
+            commandString = commandString.substring(this.name.length+1);
 
             // Decompose it by parameters.
             // We know that each parameter will be separated by another
@@ -108,7 +107,7 @@ class Command {
             var previousParameter = null;
             for (var i = 0; i < words.length; i++) {
                 var currentWord = words[i];
-                var potentialParameter = self.getParameter(currentWord);
+                var potentialParameter = this.getParameter(currentWord);
                 if (potentialParameter != null) {
                     // If we've found a new parameter, then we invoke the previous parameter
                     // with the current parameterValueBuffer and start recollecting the value
@@ -136,12 +135,12 @@ class Command {
             // Unless there has been an exception thrown while parsing the parameters, the model of the command
             // has been modified, and the command is ready to be executed. If the subclass defines a validate
             // method, it is invoked here, and if it returns false, an exception is thrown.
-            if (!self.validate()) {
+            if (!this.validate()) {
                 //To throw a fully fledged exception with individual reasons.
                 throw new ValidationError("The arguments passed to the parameter are not valid");
             }
 
-            resolve(self.model);
+            resolve(this.model);
         });
     }
 
@@ -194,8 +193,7 @@ class Command {
         } else {
             //first parse the command
             result = this._parse(inputCommand)
-                .bind(this)
-                .then(function(){
+                .then(()=>{
                     return this.run();
                 })
         }
@@ -218,11 +216,10 @@ class Command {
                 .replace("help","")
                 .trim();
         var parameterMode = parameterName !== "";
-        var self = this;
-        return new Promise(function(resolve){
+        return new Promise((resolve)=>{
             let result = "";
             if(parameterMode){
-                let parameter = self.getParameter(parameterName);
+                let parameter = this.getParameter(parameterName);
                 if(parameter === null) {
                     throw new ParseError("The given parameter ("+parameterName+") does not exist for this command.");
                 } else {
@@ -230,10 +227,10 @@ class Command {
                 }
             } else {
                 //Just get the commands general help and then add each parameter name
-                result = self.help;
+                result = this.help;
                 result += "\n\nParameters:\n"
-                for(let key in self.parameters){
-                    let parameter = self.parameters[key];
+                for(let key in this.parameters){
+                    let parameter = this.parameters[key];
                     result += "\t- "+parameter.name+": "+parameter.help.header+"\n";
                 }
             }

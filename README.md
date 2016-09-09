@@ -82,8 +82,8 @@ module.exports = function(robot){
 ````
 
 ## Implementation
-The library is implemented as pure javascript, instead of CoffeeScript. Ecmascript 6 classes are used for OOP syntactic sugar, so
-a compatible nodejs runtime is needed.
+The library is implemented as pure javascript, instead of CoffeeScript. Ecmascript 6 classes and arrow functions are used for OOP syntactic sugar, so
+a compatible nodejs runtime is needed (6.x+)
 
 Bluebird is used for promise handling.
 
